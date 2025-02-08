@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
@@ -6,7 +7,14 @@ const session = require("express-session");
 const fs = require("fs");
 const path = require("path");
 const app = express();
+
 const PORT = 3000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const DATABASE_URL = process.env.DATABASE_URLl
+
+console.log("PORT:", PORT);
+console.log("JWT_SECRET:", JWT_SECRET);
+console.log("DATABASE_URL:", DATABASE_URL);
 
 //static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -56,5 +64,8 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+
 
 
