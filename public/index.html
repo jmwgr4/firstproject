@@ -4,15 +4,26 @@
     <meta charset="UTF-8">
     <meta name = "viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <input type="text" id="username" placeholder="Usernamer">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <p id="error-message"></p>
+
+        <form id="login-form">
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username" onfocus="showHint('username-hint')" onblur="hideHint('username-hint')">
+            <small id="username-hint" class="hint"><i>💡: Creator's name.</i></small>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password" onfocus="showHint('password-hint')" onblur="hidehint('password-hint')">
+            <small id="password-hint" class="hint"><i>🔒: The name of the creator's crush.</i></small>
+
+            <button onclick="login()">Login</button>
+            <p id="error-message"></p>
+        </form>
 
     </div>
     <script src="script.js"></script>
