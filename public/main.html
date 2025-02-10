@@ -3,23 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello!</title>
+    <title>Para sa imo🌸</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="content">
-        <h2>Welcome!</h2>
-        <button onclick="logout()">Logout</button>
+    <div class="content-wrapper">
+        <div class="content">
+            <h2>✨ Four Little Treasures, Just for You! 🎁💖</h2>
+
+            <button id="unlock-btn">Tap to Unlock</button>   
+            
+            <div id="gift-container" class="hidden">
+                <div id="gift-content"></div>
+            </div>
+        </div>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+        <p class="author">🚀 Built by <i>JMW</i> | 02/14/2025</p>
     </div>
+        
+
     <script>
-        if(!localStorage.getItem("auth")){
-            window.location.href = "index.html";
-        }
         function logout(){
-            localStorage.removeItem("auth");
-            window.location.href = "index.html";
+            fetch("/logout", {
+                method: "POST",
+                credentials: "include",
+            }).then(() => {
+                localStorage.removeItem("auth");
+                window.location.href = "index.html";
+            });
         }
+
+        document.getElementById("unlock-btn").addEventListener("click", function() {
+            const gifts = [
+                { 
+                    type: "quote", 
+                    content: `
+                        Oh, Shining light in skies so blue, 🌟<br>
+                        With warm so bright and heart so true. 💖<br>
+                        Your laughter sings, a melody bright, 🎶<br>
+                        A symphony spun in golden light. 💫 <br><br>
+
+                        So on this day, with heart sincere, 💛<br>
+                        I send you joy, my darling dear. 🌹<br>
+                        May love embrace and bliss be true-- ✨<br>
+                        Happy Valentine's Day to you!❤️<br>
+
+                    `
+                },
+                { type: "image", content: "/sunset.png" },
+                { type: "card", content: "/vf.png" },
+                { type: "song", content: "https://www.youtube.com/watch?v=2Vv-BfVoq4g&ab_channel=EdSheeran" }
+            ];
+
+            const randomGift = gifts[Math.floor(Math.random() * gifts.length)];
+            const giftContainer = document.getElementById("gift-container");
+            const giftContent = document.getElementById("gift-content");
+
+            giftContent.innerHTML = "";
+            
+            function getYoutubeID(url) {
+                const match = url.match(/(?:youtube\.com\/.*v=|youtu\be\/)([a-zA-Z0-9_-]{11})/);
+                return match ? match[1] : null;
+            }
+
+            if(randomGift.type === "quote") {
+                giftContent.innerHTML = `<div class="quote-style">"${randomGift.content}"</div>`;
+            } else if (randomGift.type === "image") {
+                giftContent.innerHTML = `<div class="heart-style"><img src ="${randomGift.content}" alt= "sunset"><p><i>A golden symphony of love, glowing just for you.</i></div>`;
+            } else if (randomGift.type === "card" ){
+                giftContent.innerHTML = `<div class="vf-style"> <img src="${randomGift.content}" alt="Valentine's Card">
+                <p><a href="${randomGift.content}" download>Download Virtual Flowers</a><br><br>Would you do me the honor of accepting these virtual flowers, just for you?</p></div>`;
+            } else if (randomGift.type === "song") { 
+                const videoId = getYoutubeID(randomGift.content);
+                if(videoId) {
+                    giftContent.innerHTML = `<div class = song-style>
+                        <p> Here's song for you:</p>
+                        <iframe width ="560" height = "315" src="https://www.youtube.com/embed/${videoId}" 
+                             title="Ed Sheeran - Perfect (Official Music Video)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                            gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                         </iframe></div>
+                    `;
+                }
+                else { 
+                    giftContent.innerHTML = `<p>Oops! Unable to load pages.</p>`;
+                }
+            }
+
+            giftContainer.classList.remove("hidden");
+        });
     </script>
     
+
 </body>
 </html>

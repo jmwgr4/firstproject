@@ -1,32 +1,26 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const session = require("express-session");
-const { RedisStore } = require("connect-redis");
-const Redis = require("ioredis");
 const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const redisClient = new Redis();
 
-redisClient.on('connect', () => {
-    console.log('COnnected to Redis');
-});
 
-redisClient.on('error', (err) => {
-    console.error('Redis error:', err);
-});
+const PORT = 3000;
+const SESSION_SECRET = process.env.JWT_SECRET || "fallback_secret_key";
+const DATABASE_URL = process.env.DATABASE_URL
+
+console.log("PORT:", PORT);
+console.log("SESSION_SECRET:", SESSION_SECRET);
+console.log("DATABASE_URL:", DATABASE_URL);
 
 app.use(
     session({
-        store: new RedisStore({ 
-            client: redisClient,
-            prefix: "sess", 
-        }),
-        secret: "your_secret_key",
+        secret: SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         cookie: {
@@ -38,13 +32,9 @@ app.use(
     })
 );
 
-const PORT = 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
-const DATABASE_URL = process.env.DATABASE_URL
-
-console.log("PORT:", PORT);
-console.log("JWT_SECRET:", JWT_SECRET);
-console.log("DATABASE_URL:", DATABASE_URL);
+app.get("/check-session", (req, res) => {
+    res.json({ session: req.session });
+});
 
 //static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -64,25 +54,33 @@ const users = JSON.parse(fs.readFileSync("users.json", "utf8"));
 //Login route
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
+    console.log(`Attempting login - Username: ${username}, Password: ${password}`);
     const user = users.find(user => user.username === username);
 
-    if (user && await bcrypt.compare(password, user.password)){
+    if (!user){
+        console.log("User not found");
+        return res.json({ success: false, message: "User not found" });
+    }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log(`Password match: ${passwordMatch}`);
+
+    if(passwordMatch) {
         req.session.user = username;
-        console.log('Session created for user:', username);
-        res.json({ success: true});
-    }else {
-        console.log('Login failed for user:', username);
-        res.json({ success: false});
+        console.log(`Session created for user: ${username}`);
+        return res.json({ success: true });
+    }else{
+        console.log("Incorrect password:");
+        return res.json({ success: false, message: "Incorrect password"});
     }
 });
 
 //protected route
 app.get("/main", (req, res) => {
-    console.log('Session data:', req.session);
+    console.log("Session data:", req.session);
     if (req.session.user) {
-        res.json({ success: true, user: req.session.user });
+        res.sendFile(path.join(__dirname, "public", "main.html"));
     }else {
-        res.status(401).json({success: false});
+        res.redirect("/");
     }
 });
 

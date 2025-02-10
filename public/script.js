@@ -1,28 +1,38 @@
-async function login() {
+document.getElementById("login-form").addEventListener("submit", async function(event){
+    event.preventDefault(); 
+
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const errorMessage = document.getElementById("error-message");
 
     try {
-        const response = await fetch('/login', {
-            method: 'POST',
+        const response = await fetch("/login", {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({username, password}),
-            credentials: 'include'
+            body: JSON.stringify({ username, password }),
+            credentials: "include",
         });
-
-        if (!response.ok) throw new Error("Server error");
-
+        
         const data = await response.json();
 
         if(data.success){
-            localStorage.setItem("auth", "true");
-            window.location = "main.html";
-        }else{
-            errorMessage.innerText = "Invalid username or password!";
+            window.location.href = "/main";
+        } else {
+            errorMessage.textContent = data.message || "Invalid username or password!";
+            errorMessage.style.color = "red";
         }
-    } catch(error) {
-        errorMessage.innerText = "An error occured. Try Again!";
-        console.error("Login error: ", error);
+    } catch (error){
+        console.error("Error logging in:", error);
+        errorMessage.textContent = "Something went wrong!";
+        errorMessage.style.color = "red";
     }
+    
+});
+
+function showHint(id) {
+    document.getElementById(id).style.display = "block";
+}
+
+function hideHint(id) {
+    document.getElementById(id).style.display = "none;"
 }
